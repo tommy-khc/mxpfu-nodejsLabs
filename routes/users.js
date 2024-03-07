@@ -25,18 +25,44 @@ let users = [
 // GET request: Retrieve all users
 router.get("/", (req, res) => {
   // Copy the code here
-  res.send(JSON.stringify({users}, null, 4));
+  res.send(JSON.stringify({ users }, null, 4));
 });
 
 // GET by specific ID request: Retrieve a single user with email ID
-router.get("/:email", (req, res) => {
+router.get("/email", (req, res) => {
   // Copy the code here
-  const user = users.find((user) => user.email === req.params.email);
+  const user = users.find((user) => user.email === req.body.email);
   if (user) {
     res.send(user);
   } else {
     res.status(404).send("User not found");
   }
+});
+
+// GET by a particular Last Name request: retrieve all users with a last name
+router.get("/lastName", (req, res) => {
+  const lastName = req.body.lastName;
+  const filtered_users = users.filter((user) => user.lastName === lastName);
+  if (filtered_users.length > 0) {
+    res.send(JSON.stringify({ filtered_users }, null, 4));
+  } else {
+    res.status(404).send(`No users have '${lastName}' as their last name.`);
+  }
+});
+
+// Get quest: retrieve users sorted by date of birth from earliest to lastest
+function createDate(DOB) {
+  const [day, month, year] = DOB.split("-");
+  return new Date(year, month, day);
+}
+
+router.get("/dob", (req, res) => {
+  const sorted_users = users.sort((a, b) => {
+    const dateA = createDate(a.DOB);
+    const dateB = createDate(b.DOB);
+    return dateA - dateB;
+  });
+  res.send(JSON.stringify({ sorted_users }, null, 4));
 });
 
 // POST request: Create a new user
